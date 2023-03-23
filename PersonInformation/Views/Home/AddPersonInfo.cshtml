@@ -1,0 +1,110 @@
+﻿@model PersonInformation.Models.PersonInfo
+@inject PersonInformation.Repostry.ICountryRepostry _ICountryRepostry
+
+@{
+    ViewData["Title"] = "AddPersonInfo";
+}
+
+
+
+<h4 class="h4">Add Person Information</h4>
+<hr />
+
+@if (@ViewBag.isAdded == true)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>success!</strong> Infromation  Added successfuly :) 
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+
+}
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddPersonInfo" enctype=multipart/form-data>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Age" class="control-label"></label>
+                <input asp-for="Age" class="form-control" />
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CountryId" class="control-label"></label>
+                <select asp-for="CountryId" class="form-control" asp-items="(await _ICountryRepostry.GetCountries()).Select(x=> new SelectListItem() { Text = x.Name, Value = x.Id.ToString()})">
+                </select>
+                <span asp-validation-for="CountryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CityId" class="control-label"></label>
+                <select asp-for="CityId" class="form-control">
+                </select>
+
+                <span asp-validation-for="CityId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="img" class="control-label"></label>
+                <div class="custom-file">
+                    <input asp-for="img" class="custom-file-input" id="inputGroupFile03">
+                    <label class="custom-file-label" for="customFile">Choose Img</label>
+                </div>
+                <span asp-validation-for="img" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to Home Page</a>
+</div>
+
+@section Scripts {
+    <script>
+         $(function(){
+        $('#CountryId').on('change' , function(){
+         
+           var CountryId =$(this).val(); 
+
+           var citylist = $('#CityId');
+            citylist.empty();
+             citylist.append('<option></option>');
+            if(CountryId !== ''){
+                $.ajax({
+
+               url : '/Home/GetCities?CountryId='+CountryId,
+               success: function(result){
+                 $.each(result , function(i , result){
+                     citylist.append($('<option></option>').attr('value',result.id).text(result.name));
+                      
+                   })
+                        
+                },
+               error: function(){
+                alert("Wrong");
+                }
+              });
+             }
+        
+        });
+
+           });
+
+        </script>
+}
